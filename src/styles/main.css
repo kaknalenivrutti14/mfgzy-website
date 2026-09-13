@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --shell-x: 1.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --shell-x: 2rem;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky navbar must not cover the target of an in-page anchor. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 font-sans text-steel-300 antialiased;
+    /* Every wide diagram scrolls inside its own container, never the page. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-steel-50;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-500 ring-offset-2 ring-offset-ink-950;
+    border-radius: 0.35rem;
+  }
+
+  ::selection {
+    background: rgba(76, 141, 255, 0.32);
+    color: #f6f8fb;
+  }
+
+  /* Thin scrollbars inside diagram/table scrollers. */
+  .scroll-x {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2d3a4b transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scroll-x::-webkit-scrollbar-thumb {
+    background: #2d3a4b;
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: var(--shell-x);
+  }
+
+  /* Section rhythm — one class so vertical spacing stays consistent site-wide. */
+  .section {
+    @apply relative py-20 sm:py-24 lg:py-32;
+  }
+
+  .panel {
+    @apply rounded-2xl border border-white/[0.07] bg-ink-850/80 shadow-panel backdrop-blur-sm;
+  }
+
+  .panel-flat {
+    @apply rounded-xl border border-white/[0.07] bg-ink-800/70;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-xxs uppercase tracking-[0.18em] text-accent-400;
+  }
+
+  .display-1 {
+    @apply text-[2.5rem] font-semibold leading-[1.04] tracking-tightest text-steel-50 sm:text-6xl lg:text-[4.25rem];
+  }
+
+  .display-2 {
+    @apply text-[1.9rem] font-semibold leading-[1.1] tracking-tightest text-steel-50 sm:text-4xl lg:text-5xl;
+  }
+
+  .lede {
+    @apply text-base leading-relaxed text-steel-300 sm:text-lg;
+  }
+
+  .data-label {
+    @apply font-mono text-xxs uppercase tracking-[0.14em] text-steel-500;
+  }
+
+  .data-value {
+    @apply font-mono tabular-nums text-steel-100;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 font-mono text-xxs text-steel-300;
+  }
+
+  /*
+   * Grid items default to `min-width: auto`, so one wide child — a table, a
+   * long identifier, an SVG with an intrinsic width — drags its whole column
+   * past the viewport and the page scrolls sideways on a phone. Every grid in
+   * a section wants the opposite: shrink, and let `truncate` or `.scroll-x`
+   * handle the overflow locally. `:where()` keeps specificity at zero so any
+   * individual layout can still opt out.
+   */
+  .section :where(.grid) > * {
+    min-width: 0;
+  }
+
+}
+
+@layer utilities {
+  .grid-backdrop {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .radial-fade {
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 35%, transparent 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(180deg, #ffffff 20%, #93a6bd 115%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .will-anim {
+    will-change: transform, opacity;
+  }
+}
+
+/* Elements the entrance timelines fade in start hidden, so nothing flashes
+   before GSAP takes over. .motion-ready is set on <html> once the app decides
+   whether animation runs at all — reduced motion never hides anything. */
+html.motion-ready [data-anim] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.motion-ready [data-anim] {
+    opacity: 1;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

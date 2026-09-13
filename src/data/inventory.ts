@@ -1,0 +1,104 @@
+export type BinState = 'ok' | 'reserved' | 'empty' | 'quarantine'
+
+export type Bin = {
+  id: string
+  material: string
+  qty: string
+  lot?: string
+  state: BinState
+}
+
+export type Rack = { id: string; bins: Bin[] }
+
+export const warehouse: { name: string; racks: Rack[] } = {
+  name: 'Plant 01 · Raw Material Store',
+  racks: [
+    {
+      id: 'Rack A01',
+      bins: [
+        { id: 'A01-01', material: 'Steel Sheet 304', qty: '820 KG', lot: 'LOT-2026-0839', state: 'ok' },
+        { id: 'A01-02', material: 'Steel Sheet 304', qty: '420 KG', lot: 'LOT-2026-0842', state: 'reserved' },
+        { id: 'A01-03', material: 'Steel Round Bar', qty: '1,105 KG', lot: 'LOT-2026-0801', state: 'ok' },
+      ],
+    },
+    {
+      id: 'Rack A02',
+      bins: [
+        { id: 'A02-01', material: 'Bearing 6204-ZZ', qty: '4,800 pcs', lot: 'LOT-2026-0777', state: 'ok' },
+        { id: 'A02-02', material: 'Empty', qty: '0', state: 'empty' },
+      ],
+    },
+    {
+      id: 'Rack A03',
+      bins: [
+        { id: 'A03-11', material: 'Gear Blank 88', qty: '640 pcs', lot: 'LOT-2026-0830', state: 'ok' },
+        { id: 'A03-12', material: 'Steel Sheet 304', qty: '1,240 KG', lot: 'LOT-2026-0842', state: 'ok' },
+        { id: 'A03-13', material: 'Coolant HD-5', qty: '180 L', lot: 'LOT-2026-0766', state: 'quarantine' },
+      ],
+    },
+  ],
+}
+
+/** The record a warehouse keeper sees after scanning a bin label. */
+export const stockCard = {
+  material: 'Steel Sheet 304',
+  sku: 'RM-STL-304-2MM',
+  warehouse: 'Plant 01',
+  bin: 'A-03-12',
+  available: '1,240 KG',
+  reserved: '280 KG',
+  lot: 'LOT-2026-0842',
+  valuation: '$14,532',
+  method: 'Weighted average',
+}
+
+export type StockMove = {
+  id: string
+  type: string
+  doc: string
+  qty: string
+  bin: string
+  tone: 'ok' | 'warn' | 'info'
+}
+
+export const stockMoves: StockMove[] = [
+  { id: 'MOV-77410', type: 'Receipt', doc: 'GRN-000847', qty: '+1,800 KG', bin: 'A-03-12', tone: 'ok' },
+  { id: 'MOV-77411', type: 'Reservation', doc: 'WO-2048', qty: '-280 KG', bin: 'A-03-12', tone: 'warn' },
+  { id: 'MOV-77412', type: 'Issue', doc: 'ISS-2048-01', qty: '-1,094 KG', bin: 'A-03-12', tone: 'info' },
+  { id: 'MOV-77413', type: 'Transfer', doc: 'TRF-0219', qty: '-186 KG', bin: 'A-01-02', tone: 'info' },
+]
+
+/* Traceability ------------------------------------------------------------ */
+
+export type GenealogyNode = {
+  id: string
+  kind: string
+  label: string
+  meta: string
+  /** Position on the genealogy canvas, in grid columns and rows. */
+  col: number
+  row: number
+}
+
+export const genealogyNodes: GenealogyNode[] = [
+  { id: 'raw', kind: 'Raw material', label: 'LOT-00128', meta: 'Steel Sheet 304 · 1,800 KG', col: 0, row: 1 },
+  { id: 'grn', kind: 'Receipt', label: 'GRN-000847', meta: 'Supplier C · Sep 14', col: 1, row: 1 },
+  { id: 'wo', kind: 'Production order', label: 'WO-002184', meta: 'CNC-04 · 500 units', col: 2, row: 1 },
+  { id: 'b48', kind: 'Batch', label: 'BATCH-2048', meta: '248 units', col: 3, row: 0 },
+  { id: 'b49', kind: 'Batch', label: 'BATCH-2049', meta: '250 units', col: 3, row: 2 },
+  { id: 'pa', kind: 'Product', label: 'Gear Assembly A', meta: 'FG-GEAR-A', col: 4, row: 0 },
+  { id: 'pb', kind: 'Product', label: 'Gear Assembly B', meta: 'FG-GEAR-B', col: 4, row: 2 },
+  { id: 'ca', kind: 'Customer', label: 'Nordwerk GmbH', meta: 'DN-3391 · Sep 24', col: 5, row: 0 },
+  { id: 'cb', kind: 'Customer', label: 'Halden Industri', meta: 'DN-3402 · Sep 25', col: 5, row: 2 },
+]
+
+export const genealogyEdges: { from: string; to: string }[] = [
+  { from: 'raw', to: 'grn' },
+  { from: 'grn', to: 'wo' },
+  { from: 'wo', to: 'b48' },
+  { from: 'wo', to: 'b49' },
+  { from: 'b48', to: 'pa' },
+  { from: 'b49', to: 'pb' },
+  { from: 'pa', to: 'ca' },
+  { from: 'pb', to: 'cb' },
+]
