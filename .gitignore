@@ -12,7 +12,7 @@ coverage.xml
 
 # Node
 node_modules/
-dist/
+# dist/
 .vite/
 *.local
 
